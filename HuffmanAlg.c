@@ -16,7 +16,7 @@ Node *createHuffmanLinkedList(){
 
 long int fileSize(FILE *f){
     fseek(f, 0, SEEK_END);
-    int size = ftell(f);
+    long int size = ftell(f);
     rewind(f);
     return size;
 }
@@ -68,11 +68,10 @@ int main(){
         return 1;
     }
 
-    void **bytes = malloc(sizeof(void)*fSize);
+    void **bytes = malloc(sizeof(void*)*fSize);
 
     for(int i = 0; i < fSize; i++){
         int byte = fgetc(f);
-        printf("%c", byte);
         void *byteP = malloc(sizeof(unsigned char));
         *((unsigned char*)byteP) = (unsigned char)byte;
         bytes[i] = byteP;
@@ -83,7 +82,7 @@ int main(){
     for(int i = 0; i < fSize; i++){
         void *p = bytes[i];
         unsigned char c = *(unsigned char*)p;
-        peintf("%c \n", c);
+        printf("%c \n", c);
     }
 
     fclose(f);
