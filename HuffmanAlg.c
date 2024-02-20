@@ -14,50 +14,33 @@ Node *createHuffmanLinkedList(){
     return NULL;
 }
 
-int compareBytes(void *item1, void *item2){
-    return (*(unsigned char*) item1 == *((unsigned char*) item2));
+long int fileSize(FILE *f){
+    fseek(f, 0, SEEK_END);
+    int size = ftell(f);
+    rewind(f);
+    return size;
 }
 
 int isEmpty(Node *head){
     return (head == NULL);
 }
 
-int isIntheList(Node *head, void *item, int (*compareBytes) (void*, void*)){
-    while(head != NULL){
-        if((*compareBytes)(item, head->item)) return 1;
-        head = head->next;
-    }
-    return 0;
-}
-
 Node *addElements(Node *head, void *item, int (*compareBytes) (void*, void*)){
-    Node *newNode = (Node*) malloc(sizeof(Node));
-    Node *start = head;
-
-    if(isEmpty(head) || !isIntheList(head,item,compareBytes)){
-        newNode->item = item;
-        newNode->frequency = 1;
-        newNode->next = head;
-        return newNode;
-    }
-    
-    while(head != NULL){
-        if((*compareBytes)(item,head->item)){
-            head->frequency++;
-            break;
-        }
-        head = head->next;
-    }
-
-    return start;
+    return NULL;
 }
 
 void printHuffmanList(Node *head){
-    while(head != NULL){
-        void *item = head->item;
-        printf("%c", item);
-        printf("%d", head->frequency);
-        head = head->next;
+}
+
+void bubbleSort(void *array[], int size){
+    for(int i = 0; i < size-1; i++){
+        for(int j = 0; j < size-1-i; j++){
+            if(*(unsigned char*)array[j] > *(unsigned char*)array[j+1]){
+                void *aux = array[j];
+                array[j] = array[j+1];
+                array[j+1] = aux;
+            }
+        }
     }
 }
 
@@ -77,17 +60,32 @@ int main(){
         nome[i] = buffer[i];
     }
 
-    for(int i = 0; i < nomeTamanho; i++){
-        printf("%c", nome[i]);
-    }
-    
     f = fopen(nome, "rb");
+    long int fSize = fileSize(f);
 
     if(f == NULL){
         printf("Erro ao abrir o arquivo.");
         return 1;
     }
 
-    int (*compareBytes) (void*, void*);
+    void **bytes = malloc(sizeof(void)*fSize);
+
+    for(int i = 0; i < fSize; i++){
+        int byte = fgetc(f);
+        printf("%c", byte);
+        void *byteP = malloc(sizeof(unsigned char));
+        *((unsigned char*)byteP) = (unsigned char)byte;
+        bytes[i] = byteP;
+    }
+
+    bubbleSort(bytes,fSize);
+
+    for(int i = 0; i < fSize; i++){
+        void *p = bytes[i];
+        unsigned char c = *(unsigned char*)p;
+        peintf("%c \n", c);
+    }
+
+    fclose(f);
     return 0;
 }
