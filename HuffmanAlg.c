@@ -38,6 +38,8 @@ Node *addElements(Node *head, void *item, int (*compareBytes) (void*, void*)){
         newNode->item = item;
         newNode->next = head;
         newNode->frequency = 1;
+        newNode->left = NULL;
+        newNode->right = NULL;
         return newNode;
     }
     else if(compareBytes(head->item, item)){
@@ -104,10 +106,15 @@ Node *bubbleSortList(Node *lista, int tamanho) {
 
 Node *createBinaryHuffmanTree(Node *huffmanList){
     while(huffmanList->next != NULL){
+        char item = '\\';
+        char *pItem = (char*) malloc(sizeof(char));
+        *pItem = item;
         Node *newNode = (Node*) malloc(sizeof(Node));
         newNode->frequency = huffmanList->frequency + huffmanList->next->frequency;
         newNode->left = huffmanList;
         newNode->right = huffmanList->next;
+        newNode->item = (void*) pItem;
+        free(pItem);
 
         huffmanList = huffmanList->next->next;
     
@@ -130,6 +137,16 @@ Node *createBinaryHuffmanTree(Node *huffmanList){
         }
     }
     return huffmanList;
+}
+
+void printHuffmanTreePreOrder(Node *huffmanTree){
+    if(!isEmpty(huffmanTree)){
+        char *p = (char*) huffmanTree->item;
+        char c = *p;
+        printf("%c ", c);
+        printHuffmanTreePreOrder(huffmanTree->left);
+        printHuffmanTreePreOrder(huffmanTree->right);
+    }
 }
 
 int main(){
@@ -177,6 +194,8 @@ int main(){
     printHuffmanList(huffmanList);
 
     Node *huffmanTree = createBinaryHuffmanTree(huffmanList);
+
+    printHuffmanTreePreOrder(huffmanTree);
 
     fclose(f);
     return 0;
