@@ -8,6 +8,7 @@ typedef struct node{
     int frequency;
     struct node *left;
     struct node *right;
+    int size;
 }Node;
 
 Node *createHuffmanLinkedList(){
@@ -25,11 +26,33 @@ int isEmpty(Node *head){
     return (head == NULL);
 }
 
+int compareBytes(void *item1, void *item2){
+    return *(unsigned char*)item1 == *(unsigned char*)item2;
+}
+
 Node *addElements(Node *head, void *item, int (*compareBytes) (void*, void*)){
-    return NULL;
+    if(isEmpty(head) || !compareBytes(head->item, item)){
+        Node *newNode = (Node*) malloc(sizeof(Node));
+        if(isEmpty(head)) newNode->size = 1;
+        else newNode->size = head->size + 1;
+        newNode->item = item;
+        newNode->next = head;
+        newNode->frequency = 1;
+        return newNode;
+    }
+    else if(compareBytes(head->item, item)){
+        head->frequency++;
+        return head;
+    }
 }
 
 void printHuffmanList(Node *head){
+    while(head != NULL){
+        void *p = head->item;
+        unsigned char c = *(unsigned char*)p;
+        printf("%c %d \n", c, head->frequency);
+        head = head->next;
+    }
 }
 
 void bubbleSort(void *array[], int size){
@@ -44,8 +67,74 @@ void bubbleSort(void *array[], int size){
     }
 }
 
+Node *bubbleSortList(Node *lista, int tamanho) {
+    if (tamanho <= 1) 
+        return lista;
+
+    Node *temp;
+
+    for (int i = 0; i < tamanho - 1; i++) {
+        Node *current = lista;
+        Node *nextNode = lista->next;
+
+        for (int j = 0; j < tamanho - 1 - i; j++) {
+            if (current->frequency > nextNode->frequency) {
+                if (current == lista) 
+                    lista = nextNode;
+                else { 
+                    Node *prev = lista;
+                    while (prev->next != current)
+                        prev = prev->next;
+                    prev->next = nextNode;
+                }
+
+                current->next = nextNode->next;
+                nextNode->next = current;
+
+                temp = current;
+                current = nextNode;
+                nextNode = temp;
+            }
+            current = current->next;
+            nextNode = nextNode->next;
+        }
+    }
+    return lista;
+}
+
+Node *createBinaryHuffmanTree(Node *huffmanList){
+    while(huffmanList->next != NULL){
+        Node *newNode = (Node*) malloc(sizeof(Node));
+        newNode->frequency = huffmanList->frequency + huffmanList->next->frequency;
+        newNode->left = huffmanList;
+        newNode->right = huffmanList->next;
+
+        huffmanList = huffmanList->next->next;
+    
+        newNode->left->next = NULL;
+        newNode->right->next = NULL;
+
+        if(isEmpty(huffmanList) || newNode->frequency <= huffmanList->frequency){
+            newNode->next = huffmanList;
+            huffmanList = newNode;
+        }
+        else{
+            Node *current = huffmanList;
+
+            while(current->next != NULL && current->next->frequency < newNode->frequency){
+                current = current->next;
+            }
+
+            newNode->next = current->next;
+            current->next = newNode;
+        }
+    }
+    return huffmanList;
+}
+
 int main(){
     Node *huffmanList = createHuffmanLinkedList();
+    int (*equalsItem) (void*, void*) = compareBytes;
     FILE *f;
 
     printf("Por favor, insira o nome do arquivo que deseja compactar: ");
@@ -63,7 +152,7 @@ int main(){
     f = fopen(nome, "rb");
     long int fSize = fileSize(f);
 
-    if(f == NULL){
+    if(f == NULL || fSize == 0){
         printf("Erro ao abrir o arquivo.");
         return 1;
     }
@@ -80,10 +169,14 @@ int main(){
     bubbleSort(bytes,fSize);
 
     for(int i = 0; i < fSize; i++){
-        void *p = bytes[i];
-        unsigned char c = *(unsigned char*)p;
-        printf("%c \n", c);
+        huffmanList = addElements(huffmanList, bytes[i], equalsItem);
     }
+
+    huffmanList = bubbleSortList(huffmanList, huffmanList->size);
+
+    printHuffmanList(huffmanList);
+
+    Node *huffmanTree = createBinaryHuffmanTree(huffmanList);
 
     fclose(f);
     return 0;
