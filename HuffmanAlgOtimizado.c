@@ -110,12 +110,15 @@ void printHashTable(HashTable *table){
 
 void printQueue(Queue *fila){
     Node *aux = fila->head;
+    int num = 0;
 
     while(aux != NULL){
+        num += aux->frequency;
         unsigned char c = *(unsigned char*) aux->item;
-        printf("%c %d\n", c, aux->frequency);
+        printf("%c\n", c);
         aux = aux->next;
     }
+    printf("%d\n", num);
 }
 
 Node *createBinaryHuffmanTree(Node *huffmanList){
@@ -211,8 +214,11 @@ int main(){
         }
     }
 
+    printQueue(huffmanList);
+
     Node *huffmanTree = createBinaryHuffmanTree(huffmanList->head);
 
     printHuffmanTreePreOrder(huffmanTree);
+    fclose(f);
     return 0;
 }
