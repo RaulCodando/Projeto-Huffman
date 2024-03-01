@@ -11,6 +11,11 @@ typedef struct node{
     int size;
 }Node;
 
+int max(int a, int b){
+    if(a > b) return a;
+    else return b;
+}
+
 Node *createHuffmanLinkedList(){
     return NULL;
 }
@@ -49,12 +54,17 @@ Node *addElements(Node *head, void *item, int (*compareBytes) (void*, void*)){
 }
 
 void printHuffmanList(Node *head){
+    int num = 0;
+
     while(head != NULL){
+        num += head->frequency;
         void *p = head->item;
         unsigned char c = *(unsigned char*)p;
-        printf("%c %d \n", c, head->frequency);
+        printf("%c\n", c);
         head = head->next;
     }
+
+    printf("%d\n", num);
 }
 
 void bubbleSort(void *array[], int size){
@@ -149,6 +159,15 @@ void printHuffmanTreePreOrder(Node *huffmanTree){
     }
 }
 
+int height(Node *huffmanTree){
+    if(isEmpty(huffmanTree)){
+        return -1;
+    }
+    else{
+        return 1 + max(height(huffmanTree->left), height(huffmanTree->right));
+    }
+}
+
 int main(){
     Node *huffmanList = createHuffmanLinkedList();
     int (*equalsItem) (void*, void*) = compareBytes;
@@ -189,7 +208,9 @@ int main(){
         huffmanList = addElements(huffmanList, bytes[i], equalsItem);
     }
 
-    huffmanList = bubbleSortList(huffmanList, huffmanList->size);
+    int size = huffmanList->size;
+
+    huffmanList = bubbleSortList(huffmanList, size);
 
     printHuffmanList(huffmanList);
 
