@@ -5,30 +5,22 @@ int main(){
     HashTable *table = createHashTable(); //Cria uma tabela vazia
     FILE *f; //Declara o arquivo "f"
 
-    printf("Por favor, insira o nome do arquivo que deseja compactar: ");
+    printf("Por favor, insira o caminho do arquivo que deseja compactar: ");
 
-    //Cria o buffer onde será armazenado o nome do arquivo escolhido pelo usuário
-    char buffer[100];
+    //Cria o buffer onde será armazenado o caminho do arquivo escolhido pelo usuário
+    char buffer[1000];
     
-    //Lê o nome do arquivo pela entrada padrão e o armazena no buffer
+    //Lê o caminho do arquivo pela entrada padrão e o armazena no buffer
     fgets(buffer, sizeof(buffer), stdin);
 
-    //Calcula o tamanho da string lida
-    int nomeTamanho = strlen(buffer)-1;
-
-    //Cria um array de caracteres com o tamanho da string lida
-    char nome[nomeTamanho];
-
-    //Transfere os caracteres do buffer para o novo array
-    for(int i = 0; i < nomeTamanho; i++){
-        nome[i] = buffer[i];
-    }
+    //Substitui a quebra de linha no final pelo caractere de término de string
+    buffer[strcspn(buffer, "\n")] = '\0';
 
     /*
-    Abre o arquivo cujo nome está armazenado no array "nome" 
+    Abre o arquivo cujo caminho está armazenado no buffer 
     em modo de leitura de bytes
     */
-    f = fopen(nome, "rb");
+    f = fopen(buffer, "rb");
 
     //Calcula e armazena o tamanho do arquivo
     long int fSize = fileSize(f);
