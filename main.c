@@ -36,19 +36,13 @@ int main(){
 
     //Passa por cada byte do arquivo, adicionando-o à tabela de frequências
     for(int i = 0; i < fSize; i++){
-        //Lê um byte e o armazena como um inteiro
-        int byte = fgetc(f);
-
-        //Aloca dinamicamente um ponteiro para void
+        // Aloca dinamicamente um ponteiro para void
         void *byteP = malloc(sizeof(unsigned char));
 
-        /*
-        O byte que foi guardado como um inteiro é convertido em um unsigned char
-        e passa a ser o contúdo apontado pelo ponteiro para void
-        */
-        *((unsigned char*)byteP) = (unsigned char)byte;
+        // Lê um byte e o armazena como um inteiro
+        fread(byteP, sizeof(unsigned char), 1, f);
 
-        //Adiciona o ponteiro para void à tabela, atualizando sua frequência
+        // Adiciona o ponteiro para void à tabela, atualizando sua frequência
         put(table, byteP);
     }
 
