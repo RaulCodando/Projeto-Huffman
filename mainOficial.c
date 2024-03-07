@@ -18,7 +18,7 @@ int main(){
         int inputValido = 1;
 
         do{
-            scanf("%s", &input);
+            scanf(" %[^\n]", input);
 
             if(input[0] == 'F' || input[0] == 'f') break;
             else if(input[0] == 'C' || input[0] == 'c'){
@@ -31,9 +31,9 @@ int main(){
                 printf("O arquivo foi compactado. Deseja continuar usando o programa?\n");
                 printf("===============================================================\n");
                 printf("\nDigite SIM para prosseguir");
-                printf("Digite qualquer outra entrada para sair");
+                printf("\nDigite qualquer outra entrada para sair\n");
                 printf("\n>>> ");
-                scanf("%s", &input);
+                scanf(" %s", input);
 
                 if(input[0] != 'S' && input[0] != 's'){
                     input[0] = 'F';
@@ -47,7 +47,7 @@ int main(){
             }
             else{ 
                 inputValido = 0;
-                printf("Por favor, digite uma entrada valida\n");
+                printf("\nPor favor, digite uma entrada valida\n");
                 printf("\n>>> ");
             }
         }while(inputValido == 0);
