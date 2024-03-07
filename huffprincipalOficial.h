@@ -36,17 +36,17 @@ int compressFile(){
     */
     f = fopen(buffer, "rb");
 
-    //Calcula e armazena o tamanho do arquivo
-    long int fSize = fileSize(f);
-
     /*
-    Se houver algum problema na abertura do arquivo ou ele for vazio,
+    Se houver algum problema na abertura do arquivo ou ele não existir,
     encerra o programa
     */
-    if(f == NULL || fSize == 0){
+    if(f == NULL){
         printf("Erro ao abrir o arquivo.");
         return 1;
     }
+
+    //Calcula e armazena o tamanho do arquivo
+    long int fSize = fileSize(f);
 
     //Passa por cada byte do arquivo, adicionando-o à tabela de frequências
     for(int i = 0; i < fSize; i++){
