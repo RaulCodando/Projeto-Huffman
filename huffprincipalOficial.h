@@ -2,8 +2,8 @@
 #define MAINHUFF_H
 
 #include "table.h"
-#include "hufftree.h"
 #include "queue.h"
+#include "mapbytes.h"
 #include <string.h>
 
 //Retorna o tamanho de um arquivo
@@ -17,6 +17,7 @@ long int fileSize(FILE *f){
 int compressFile(){
     Queue *huffmanList = createHuffmanQueue(); //Cria uma fila de prioridade
     HashTable *table = createHashTable(); //Cria uma tabela vazia
+    char **mappedBytes;
     FILE *f; //Declara o arquivo "f"
 
     printf("Por favor, insira o caminho do arquivo que deseja compactar: ");
@@ -67,14 +68,22 @@ int compressFile(){
         }
     }
 
-    //Imprime a fila
     printQueue(huffmanList);
 
     //Cria a árvore de Huffman usando a fila contendo os bytes do arquivo
     Node *huffmanTree = createBinaryHuffmanTree(huffmanList->head);
 
-    //Imprime a árvore em pré-ordem
     printHuffmanTreePreOrder(huffmanTree);
+
+    int columns = height(huffmanTree) + 1;
+
+    printf("\n");
+
+    mappedBytes = allocateMap(columns);
+
+    createMap(mappedBytes, huffmanTree, "", columns);
+
+    printMap(mappedBytes);
 
     //Fecha o arquivo "f"
     fclose(f);
