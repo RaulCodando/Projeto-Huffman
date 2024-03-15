@@ -1,228 +1,342 @@
-// Por enquanto, só o código do Raul mesmo
-// Vou fazer modificações aqui para realizar testes sem comprometer o arquivo principal
-
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
+#define ASCII 256
 
-typedef struct node{
-    void *item;
-    struct node *next;
-    int frequency;
+
+typedef struct node
+{
+    int Frequency;
+    void * Character;
     struct node *left;
     struct node *right;
-}Node;
+    struct node *next;
+} Node;
 
-typedef struct priorityQueue{
-    Node *head;
-}Queue;
+typedef struct list
+{
+    Node *start;
+    int size;
+} List;
 
-typedef struct element{
-    int frequency;
-    void *value;
-}Element;
-
-typedef struct hashTable{
-    Element *table[256];
-}HashTable;
-
-Queue *createHuffmanQueue(){
-    Queue *fila = (Queue*) malloc(sizeof(Queue));
-    fila->head = NULL;
-    return fila;
+void createList (List *list)
+{
+    list->start = NULL;
+    list->size = 0;
 }
 
-HashTable *createHashTable(){
-    HashTable *newHashTable = (HashTable*) malloc(sizeof(HashTable));
-
-    for(int i = 0; i < 256; i++){
-        newHashTable->table[i] = NULL;
+Node * removeonstart (List * list)
+{
+    Node * aux = NULL;
+    if (list->start != NULL)
+    {
+        aux = list->start;
+        list->start = aux->next;
+        aux->next = NULL;
+        list->size--;
     }
 
-    return newHashTable;
+    return aux;
 }
+void ordered_Insert (List * list, Node * node)
+{
 
-void put(HashTable *table, void *value){
-    int h = *(unsigned char*) value;
+    Node * aux;
 
-    if(table->table[h] == NULL){
-        table->table[h] = (Element*) malloc(sizeof(Element));
-        table->table[h]->frequency = 1;
-        table->table[h]->value = value;
+    if (list->start == NULL)
+    {
+        list->start = node;
     }
-    else{
-        table->table[h]->frequency++;
+    else if (node->Frequency <= list->start->Frequency)
+    {
+        node->next = list->start;
+        list->start = node;
     }
-}
+    else {
+        aux = list->start;
+        while (aux->next && aux->next->Frequency <= node->Frequency)
+        {
 
-int isEmpty(Queue *fila){
-    return fila->head == NULL;
-}
-
-int isEmptyList(Node *head){
-    return (head == NULL);
-}
-
-int max(int a, int b){
-    if(a > b) return a;
-    else return b;
-}
-
-long int fileSize(FILE *f){
-    fseek(f, 0, SEEK_END);
-    long int size = ftell(f);
-    rewind(f);
-    return size;
-}
-
-int compareBytes(void *item1, void *item2){
-    return *(unsigned char*)item1 == *(unsigned char*)item2;
-}
-
-void enqueue(Queue *fila, void *item, int frequency){
-    Node *newNode = (Node*) malloc(sizeof(Node));
-    newNode->item = item;
-    newNode->frequency = frequency;
-    newNode->left = NULL;
-    newNode->right = NULL;
-
-    if(isEmpty(fila) || frequency < fila->head->frequency){
-        newNode->next = fila->head;
-        fila->head = newNode;
-    }
-    else{
-        Node *current = fila->head;
-
-        while(current->next != NULL && current->next->frequency < frequency){
-            current = current->next;
+            aux = aux->next;
+        
         }
-
-        newNode->next = current->next;
-        current->next = newNode;
+                    node->next = aux->next;
+            aux->next = node;
     }
+        list->size++;
 }
 
-void printHashTable(HashTable *table){
-    for(int i = 0; i < 256; i++){
-        if(table->table[i] != NULL){
-            unsigned char c = *(unsigned char*) table->table[i]->value;
-            printf("%c %d\n", c, table->table[i]->frequency);
-        }
-    }
-}
+void FillList (unsigned int table[], List * list)
+{
+    int c;
+    Node * new;
+    for ( c = 0; c < ASCII; c++)
+    {
 
-void printQueue(Queue *fila){
-    Node *aux = fila->head;
-    int num = 0;
-
-    while(aux != NULL){
-        num += aux->frequency;
-        unsigned char c = *(unsigned char*) aux->item;
-        printf("%c\n", c);
-        aux = aux->next;
-    }
-    printf("%d\n", num);
-}
-
-Node *createBinaryHuffmanTree(Node *huffmanList){
-    while(huffmanList->next != NULL){
-        char item = '\\';
-        char *pItem = (char*) malloc(sizeof(char));
-        *pItem = item;
-        Node *newNode = (Node*) malloc(sizeof(Node));
-        newNode->frequency = huffmanList->frequency + huffmanList->next->frequency;
-        newNode->left = huffmanList;
-        newNode->right = huffmanList->next;
-        newNode->item = (void*) pItem;
-        free(pItem);
-
-        huffmanList = huffmanList->next->next;
-    
-        newNode->left->next = NULL;
-        newNode->right->next = NULL;
-
-        if(isEmptyList(huffmanList) || newNode->frequency <= huffmanList->frequency){
-            newNode->next = huffmanList;
-            huffmanList = newNode;
-        }
-        else{
-            Node *current = huffmanList;
-
-            while(current->next != NULL && current->next->frequency < newNode->frequency){
-                current = current->next;
+        if (table[c] > 0)
+        {
+            new = malloc(sizeof(Node));
+            new->Character = calloc(1, sizeof(char));
+            if (new != NULL)
+            {
+                
+                *(char*)new->Character = c;
+                new->Frequency = table[c];
+                new->left = NULL;
+                new->right = NULL;
+                new->next = NULL;
+            ordered_Insert(list, new);
             }
+        else {
+            printf ("\nMALLOC ERROR :)\n PLEASE CHECK YOUR CODE AGAIN\n");
+            break;
+ 
+        }
 
-            newNode->next = current->next;
-            current->next = newNode;
         }
     }
-    return huffmanList;
 }
 
-void printHuffmanTreePreOrder(Node *huffmanTree){
-    if(!isEmptyList(huffmanTree)){
-        char *p = (char*) huffmanTree->item;
-        char c = *p;
-        printf("%c ", c);
-        printHuffmanTreePreOrder(huffmanTree->left);
-        printHuffmanTreePreOrder(huffmanTree->right);
+void printList (List * list)
+{
+    Node * aux = list->start;
+    while (aux)
+    {
+        printf ("\n Lista Ordenada: Size: %d\n",list->size);
+        printf (" Character: %c Frequency: %d", *(char*)aux->Character, aux->Frequency);
+        aux = aux->next;
+
     }
 }
 
-int height(Node *huffmanTree){
-    if(isEmptyList(huffmanTree)){
-        return -1;
-    }
-    else{
-        return 1 + max(height(huffmanTree->left), height(huffmanTree->right));
+
+void countFrequency (FILE *file, int Frequency[])
+{
+    int c;
+    while ((c = fgetc(file)) != EOF)
+    {
+        Frequency[c]++;
     }
 }
 
-int main(){
-    Queue *huffmanList = createHuffmanQueue();
-    HashTable *table = createHashTable();
-    int (*equalsItem) (void*, void*) = compareBytes;
-    FILE *f;
+void printFrequency (int Frequency[])
+{
+      for (int c = 0; c < ASCII; c++)
+    {   
+        if (Frequency[c] != 0)
+        printf ("Frequência de %c: %d\n", c, Frequency[c]);
+    }
+}
 
-    printf("Por favor, insira o nome do arquivo que deseja compactar: ");
+// ------------------------------------------- TREE -----------------------------
 
-    char buffer[100];
+Node * mkTree (List * list)
+{
+    Node *first, *second, *new;
+    while (list->size > 1)
+    {
+        first = removeonstart(list);
+        second = removeonstart(list);
+        new = malloc(sizeof(Node));
+
+        if (new)
+        {
+            new->Character = calloc(1, sizeof(char));
+            *(char*)new->Character = '*'; // EDIT LATER, PLACEHOLD CHARACTER
+            new->Frequency = first->Frequency + second->Frequency;
+            new->left = first;
+            new->right = second;
+            new->next = NULL;
+
+            ordered_Insert(list, new);
+        }
+        else {
+            printf ("\n PLEASE CHECK YOUR CODE AGAIN -> TREE ERROR!\n");
+            break;
+        }
+    }
+    return list->start;
+}
+
+void printTree (Node * root, int size)
+{
+    if (root->left == NULL && root->right == NULL)
+    {
+        printf ("Leafchar: %c Height: %d\n", *(char*)root->Character, size);
+    }
+    else {
+        printTree(root->left, size + 1);
+        printTree(root->right, size + 1);
+    }
+}
+int TreeHeight (Node * root){
+
+        int left, right;
+        if (root == NULL)
+        {
+            return -1;
+        }
+        else {
+            left = TreeHeight(root->left) + 1;
+            right = TreeHeight(root->right) + 1;
+            if (left > right)
+            {
+                return left;
+            }
+            else {
+                return right;
+            }
+        }
+}
+ // ------------------------------------------- DICTIONARY -----------------------------
+char ** allocate_Dictionary (int rows)
+{
+    char ** dictionary;
+    int c;
+    dictionary = malloc(sizeof(char*) * ASCII);
+    for (c = 0; c < ASCII; c++)
+    {
+        dictionary[c] = calloc(rows,sizeof(char));
+    } 
+    return dictionary;
+}
+
+void Generate_Dictionary (char ** dictionary, Node * root, char * path, int rows)
+{
+
+    char left[rows], right[rows];
+
+    if (root->left == NULL && root->right == NULL)
+    {
+        strcpy (dictionary[*(int*)root->Character], path);
+    }
+    else {
+
+        strcpy(left, path);
+        strcpy(right, path);
+        
+        strcat(left, "0");
+        strcat(right, "1");
+
+        Generate_Dictionary(dictionary, root->left, left, rows);
+        Generate_Dictionary(dictionary, root->right, right, rows);
+
+    }
+}
+
+void Print_Dictionary (char ** dictionary)
+    {
+        int c;
+        printf ("\n--- DICTIONARY ---\n");
+        for (c = 0; c < ASCII; c++)
+        {
+           if (strlen(dictionary[c]) > 0)
+           {
+               printf ("Character: %c Code: %s\n", c, dictionary[c]);
+           }
+        }
+    }
+// ------------------------------------------- ENCODE -----------------------------
+int get_String_Size (char ** dictionary, FILE *file)
+{
+    rewind(file);
+    int c;
+    int size = 0;
+    while ((c = fgetc(file)) != EOF)
+    {
+        if(c >= 0 && c < 256) 
+            size += strlen(dictionary[c]);
+    }
+
+    rewind(file);
+    return size + 1;
+}
+
+char * encode (char ** dictionary, FILE * file)
+{
+    int c;
+    int size = get_String_Size(dictionary, file);
+    char * encoded = calloc(size, sizeof(char));
+    char * current_position = encoded;
+    if(encoded == NULL)
+    {
+        printf("\nMemory allocation failed -> ENCONDING ERROR\n");
+        return NULL;
+    }
+    while ((c = fgetc(file)) != EOF)
+    {
+        if(c >= 0 && c < 256) 
+        {
+            strcpy(current_position, dictionary[c]);
+            current_position += strlen(dictionary[c]);
+        }
+    }
+    return encoded;
+}
+
+
+
+
+
+
+
+// ------------------------------------------- DECODE -----------------------------
+
+
+
+// ------------------------------------------- MAIN -----------------------------
+int main ()
+{
+FILE *file = NULL;
+int Frequency[ASCII] = {0};
+int rows;
+char ** dictionary;
+char *encoded, *decoded;
+Node * tree;
+
+    printf ("Por favor, insira o nome do arquivo.\n");
+    do {
+  unsigned  char filename[100];
+    scanf (" %s", filename);
+    file = fopen(filename, "r");
+    if (file == NULL)
+    {
+        printf("\nInsira um arquivo válido!\n");
+    }
+} while (file == NULL);
+    printf ("arquivo aberto com sucesso!\n");
+    // CONTA TEMPO CONTA TEMPO
+        clock_t start, end;
+
+
+        start = clock();
+
+
+    // CONTA TEMPO CONTA TEMPO
+    countFrequency(file, Frequency);
+    printFrequency(Frequency); // Remover mais tarde
+    printf ("--------------------------------\n");
+
+    List list;
+    createList(&list);
+    FillList(Frequency, &list);
+    printList(&list);  // Remover mais tarde
+    printf ("\n--------------------------------\n");
+   
+    tree = mkTree(&list);
+    printTree(tree, 0);
     
-    fgets(buffer, sizeof(buffer), stdin);
-    int nomeTamanho = strlen(buffer)-1;
-    char nome[nomeTamanho];
+    rows = TreeHeight(tree) + 1;
 
-    for(int i = 0; i < nomeTamanho; i++){
-        nome[i] = buffer[i];
-    }
+    dictionary = allocate_Dictionary(rows);
+    Generate_Dictionary(dictionary, tree, "", rows);
+    Print_Dictionary(dictionary);
+   encoded = encode(dictionary, file);
+  /*  FILE * output =fopen("output.txt","w"); NÃO USAR EM ARQUIVOS GRANDES KKKKKKKKKKKKKKKKKKKKKKKKKKK
+    fprintf(output,"%s",encoded); */
+    end = clock();
+    printf ("Tempo de execução: %f\n", (double)(end - start) / CLOCKS_PER_SEC);
 
-    f = fopen(nome, "rb");
-    long int fSize = fileSize(f);
-
-    if(f == NULL || fSize == 0){
-        printf("Erro ao abrir o arquivo.");
-        return 1;
-    }
-
-    for(int i = 0; i < fSize; i++){
-        int byte = fgetc(f);
-        void *byteP = malloc(sizeof(unsigned char));
-        *((unsigned char*)byteP) = (unsigned char)byte;
-        put(table, byteP);
-    }
-
-    for(int i = 0; i < 256; i++){
-        if(table->table[i] != NULL){
-            enqueue(huffmanList, table->table[i]->value, table->table[i]->frequency);
-        }
-    }
-
-    printQueue(huffmanList);
-
-    Node *huffmanTree = createBinaryHuffmanTree(huffmanList->head);
-
-    printHuffmanTreePreOrder(huffmanTree);
-    fclose(f);
     return 0;
 }
