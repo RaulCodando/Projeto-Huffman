@@ -92,9 +92,29 @@ int compressFile(){
 
     free(symbols);
 
-    outputFile(encodedSize, treeCharacters, encodedFile, treeSize);
+    char aux[1000];
+    char fileName[1000];
+
+    int j = strlen(buffer) - 1;
+
+    for(i = strlen(buffer) - 1; i >= 0; i--){
+        if(buffer[i] != '\\'){
+            fileName[j] = buffer[i];
+            j--;
+        }
+        else if(buffer[i] == '\\') break;
+    }
+
+    fileName[strlen(buffer)] = '\0';
+
+    int output = outputFile(encodedSize, treeCharacters, encodedFile, treeSize, fileName);
 
     free(encodedFile);
+    free(huffmanTree);
+    free(huffmanList);
+    free(table);
+
+    if(output == 1) return 1;
 
     rewind(f);
 
@@ -104,6 +124,110 @@ int compressFile(){
 }
 
 int decompressFile(){
+    FILE *f;
+
+    char buffer[1000];
+    unsigned short header;
+    unsigned short trash = 0;
+    unsigned short treeSize = 0;
+    int index = 0;
+    int binary[16] = {0};
+
+    printf("Por favor, insira o caminho do arquivo que deseja descompactar: ");
+
+    fgets(buffer, sizeof(buffer), stdin);
+
+    buffer[strcspn(buffer, "\n")] = '\0';
+
+    f = fopen(buffer, "rb");
+
+    if(f == NULL){
+        printf("\nErro ao abrir o arquivo.");
+        return 1;
+    }
+
+    long int fSize = fileSize(f);
+
+    fread(&header, sizeof(unsigned short), 1, f);
+
+    int j = 2;
+    for(int i = 15; i >= 13; i--){
+        if(isHeaderSet(i, header)) trash = setHeader(j, trash);
+        j--;
+    }
+
+    for(int i = 12; i >= 0; i--){
+        if(isHeaderSet(i, header)) treeSize = setHeader(i, treeSize);
+    }
+
+    unsigned char tree[treeSize];
+
+    for(int i = 0; i < treeSize; i++){
+        fread(&tree[i], sizeof(unsigned char), 1, f);
+    }
+
+    Node *huffmanTree = rebuildTree(tree, treeSize, &index, NULL);
+    Node *aux = huffmanTree;
+
+    printHuffmanTreePreOrder(huffmanTree);
+
+    printf("\n%d %d", trash, treeSize);
+
+    for(int i = strlen(buffer) - 1; i >= 0; i--){
+        if(buffer[i] == '.'){ 
+            buffer[i] = '\0';
+            break;
+        }
+    }
+
+    char fileName[1000];
+    strcpy(fileName, "decompressed");
+    strcat(fileName, buffer);
+
+    FILE *decompressedFile = fopen(fileName, "wb");
+
+    if(decompressedFile == NULL){
+        printf("\nErro ao criar arquivo descompactado.");
+        return 1;
+    }
+
+    unsigned char byte;
+    int i;
+    int readBits = 0;
+
+    while(fread(&byte, sizeof(unsigned char), 1, f)){
+        long int position = ftell(f);
+
+        for(i = 7; i >= 0; i--){
+            if(isBitSet(i, byte)){
+                aux = aux->right;
+            }
+            else{
+                aux = aux->left;
+            }
+
+            readBits++;
+
+            if(aux->left == NULL && aux->right == NULL){
+                unsigned char *item = (unsigned char*) malloc(sizeof(unsigned char));
+                item = (unsigned char*) aux->item;
+                unsigned char c = *item;
+                fwrite(item, sizeof(unsigned char), 1, decompressedFile);
+                aux = huffmanTree;
+            }
+
+            if(position == fSize && (readBits + trash) % 8 == 0){
+                break;
+            }
+        }
+
+        if(position == fSize && (readBits + trash) % 8 == 0){
+            break;
+        }
+    }
+
+    fclose(f);
+    fclose(decompressedFile);
     return 0;
 }
 
