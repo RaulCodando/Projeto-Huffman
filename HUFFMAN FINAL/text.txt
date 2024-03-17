@@ -1,1 +1,8 @@
 Terminamos, pessoal. :)
+
+
+Para compilar, podem usar o comando 
+
+gcc -o Huff.exe HuffmanAlg.c hufftree.c mainhuff.c mapbytes.c queue.c
+
+
