@@ -1,1 +1,1 @@
-Eu sou o Walber
+gcc filaDePrioridades.c -o marcio
