@@ -136,4 +136,35 @@ void printHuffmanTreePreOrder(Node *huffmanTree){
     }
 }
 
+Node *rebuildTree(unsigned char string[], int size, int *i, Node *tree){
+    if(*i < size){
+        unsigned char *item = (unsigned char*) malloc(sizeof(unsigned char));
+        *item = string[*i];
+        (*i)++;
+
+        if(*item == '*'){
+            tree = (Node*) malloc(sizeof(Node));
+            tree->item = item;
+            tree->left = NULL;
+            tree->right = NULL;
+            tree->left = rebuildTree(string, size, i, tree->left);
+            tree->right = rebuildTree(string, size, i, tree->right);
+        }
+        else{
+            if(*item == '\\'){
+                (*i)++;
+                *item = string[*i];
+            }
+
+            tree = (Node*) malloc(sizeof(Node));
+            tree->item = item;
+            tree->left = NULL;
+            tree->right = NULL;
+        }
+    }
+
+    return tree;
+}
+
+
 #endif //HUFFTREE_H
