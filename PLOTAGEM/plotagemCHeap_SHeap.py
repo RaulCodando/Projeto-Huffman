@@ -27,7 +27,7 @@ def extract_values(file_name):
 # Função para plotar os resultados
 def plot_results(iterations_with_heap, iterations_without_heap):
     plt.plot(iterations_with_heap, label='Com Heap', color='red')
-    plt.plot(iterations_without_heap, label='Sem Heap', color='yellow')
+    plt.plot(iterations_without_heap, label='Sem Heap', color='blue')
     plt.xlabel('Elemento')
     plt.ylabel('Iterações')
     plt.title('Iterações com e sem Heap')
@@ -45,7 +45,7 @@ def plot_heap_results(iterations_with_heap):
 
 # Função para plotar os resultados sem heap
 def plot_without_heap_results(iterations_without_heap):
-    plt.plot(iterations_without_heap, label='Sem Heap', color='yellow')
+    plt.plot(iterations_without_heap, label='Sem Heap', color='blue')
     plt.xlabel('Elemento')
     plt.ylabel('Iterações')
     plt.title('Iterações sem Heap')
