@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 # Função para compilar e executar o programa C e capturar a saída
 def compile_and_execute():
     # Compilar o programa C
-    os.system('gcc filadePrioridades2.c -o marcio')
+    os.system('gcc main.c filaPrioridades.c -o marcio')
     # Executar o programa C e redirecionar a saída para um arquivo
     os.system('./marcio > output.txt')
 
