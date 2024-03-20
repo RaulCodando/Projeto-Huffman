@@ -17,8 +17,8 @@ int main() {
         iterationsWithHeap = 0;
         insertHeap(heapWith, &heapSizeWith, i, &iterationsWithHeap);
         int iterationsWithoutHeap = insertWithoutHeap(pqWithoutHeap, i);
-        printf("Elemento %d (com heap): %d iterações\n", i, iterationsWithHeap);
-        printf("Elemento %d (sem heap): %d iterações\n", i, iterationsWithoutHeap);
+        printf("Elemento %d (com heap): %d iteracoes\n", i, iterationsWithHeap);
+        printf("Elemento %d (sem heap): %d iteracoes\n", i, iterationsWithoutHeap);
         printf("\n");
     }
 
